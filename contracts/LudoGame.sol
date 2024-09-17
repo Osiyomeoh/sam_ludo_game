@@ -1,4 +1,6 @@
-// SPDX-Liscense-Identifier: MIT
+// SPDX-License-Identifier: MIT
+
+pragma solidity ^0.8.24;
 
 contract SamLudo {
 
@@ -16,12 +18,15 @@ contract SamLudo {
             address public playingNow;
             uint8 public result;
 
-            event rolledTheDice (address indexed player, uint8 result )
+            event rolledTheDice (address indexed player, uint8 result );
+            
+            event PlayerMoved(address indexed player, uint256 newPosition);
+
+            event GameReset();
+
           
 
-                constructor(){
-
-                }
+                
 
         function addPlayer() external {
                 require(!players[msg.sender].hasStarted, "Player already exists.");
@@ -34,8 +39,8 @@ contract SamLudo {
                 }
             }
 
-        function _getRandomNumber() internal returns (uint8) {
-                uint randomSeed = uint(keccak256(abi.encodePacked(block.timestamp, block.difficulty, msg.sender)));
+        function _getRandomNumber() internal view returns (uint8) {
+                uint randomSeed = uint(keccak256(abi.encodePacked(block.timestamp, block.prevrandao, msg.sender)));
                 return uint8(randomSeed % 6) + 1;
             }
         function rollTheDice() external {
@@ -48,17 +53,14 @@ contract SamLudo {
 
         function movePlayer(uint8 steps) internal {
                 Player storage player = players[msg.sender];
-                uint8 newPosition = player.position + steps;
-
-                 
-                
+                uint256 newPosition = player.position + steps;
                 player.position = newPosition;
                 emit PlayerMoved(msg.sender, newPosition);
                 if (newPosition == WINNING_POSITION) {
-                player.position = WINNING_POSITION; // Player wins!
+                player.position = WINNING_POSITION; 
                 resetGame();
             } else if (newPosition < WINNING_POSITION) {
-                player.position = newPosition; // Move player
+                player.position = newPosition; 
             } else {
                 _nextTurn(); 
             }
@@ -90,7 +92,7 @@ contract SamLudo {
                 delete playerList;
                 emit GameReset();
             }
-            function getPlayerPosition(address player) external view returns (uint8) {
+            function getPlayerPosition(address player) external view returns (uint256) {
                 return players[player].position;
             }
 
