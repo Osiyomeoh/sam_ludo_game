@@ -27,7 +27,7 @@ contract SamLudo {
           
 
                 
-
+        
         function addPlayer() external {
                 require(!players[msg.sender].hasStarted, "Player already exists.");
                 Player memory newPlayer = Player({position: 0, hasStarted: true});
